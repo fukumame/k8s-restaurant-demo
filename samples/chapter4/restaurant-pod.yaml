@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: restaurant-demo-pod
+  labels:
+    app: restaurant-demo
+spec:
+  containers:
+    - name: restaurant-demo
+      image: docker.io/fukumame/k8s-restaurant-demo:1.0.0
+      ports:
+        - containerPort: 8000
+      env:
+        - name: MENU_NAME
+          value: "焼き立てクロワッサン"

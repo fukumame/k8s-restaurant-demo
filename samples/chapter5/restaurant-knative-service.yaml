@@ -1,0 +1,20 @@
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  name: restaurant-demo
+  namespace: default
+spec:
+  template:
+    metadata:
+      annotations:
+        autoscaling.knative.dev/minScale: "1"
+        autoscaling.knative.dev/maxScale: "10"
+        autoscaling.knative.dev/target: "30"
+    spec:
+      containers:
+        - image: docker.io/fukumame/k8s-restaurant-demo:1.0.0
+          ports:
+            - containerPort: 8000
+          env:
+            - name: MENU_NAME
+              value: "KNative特製ランチ"

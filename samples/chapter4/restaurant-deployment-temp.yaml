@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: restaurant-demo-temp
+  labels:
+    app: restaurant-demo-temp
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: restaurant-demo-temp
+  template:
+    metadata:
+      labels:
+        app: restaurant-demo-temp
+    spec:
+      containers:
+        - name: restaurant-demo
+          image: docker.io/fukumame/k8s-restaurant-demo:volume
+          ports:
+            - containerPort: 8000

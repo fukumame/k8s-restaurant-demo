@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: nginx-statefulset
+  namespace: default
+spec:
+  serviceName: nginx-statefulset  # Headless Serviceの名前を指定
+  replicas: 3
+  selector:
+    matchLabels:
+      app: nginx-statefulset
+  template:
+    metadata:
+      labels:
+        app: nginx-statefulset
+    spec:
+      containers:
+        - name: nginx
+          image: nginx:1.25
+          ports:
+            - containerPort: 80
+              name: http
+          volumeMounts:
+            - name: www
+              mountPath: /usr/share/nginx/html
+  volumeClaimTemplates:  # 各Podに専用のPVCを作成
+    - metadata:
+        name: www
+      spec:
+        accessModes: [ "ReadWriteOnce" ]
+        resources:
+          requests:
+            storage: 1Gi
