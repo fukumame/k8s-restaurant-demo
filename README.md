@@ -4,7 +4,7 @@
 ## ディレクトリ構成
 
 - **第3章/** … Kubernetes環境構築（kind の設定など）
-- **第4章/** … Pod / ReplicaSet / Deployment / ConfigMap / Secret / Service / Volume / StatefulSet / DaemonSet / CronJob のマニフェスト
+- **第4章/** … Pod / ReplicaSet / Deployment / ConfigMap / Secret / Service / Volume / StatefulSet / DaemonSet / CronJob のマニフェストとアプリ簡略版
 - **第5章/** … Knative Serving 用の ConfigMap と KNative Service のマニフェスト
 
 ## 第3章で使うファイル
@@ -12,7 +12,13 @@
 | ファイル | 説明 |
 |----------|------|
 | `kind-config.yaml` | 1 control-plane + 2 workers の kind クラスタ用設定 |
+| `install-homebrew.sh` | macOS 向け Homebrew インストールスクリプト |
+| `install-chocolatey.ps1` | Windows 向け Chocolatey インストールスクリプト |
 
+**最小手順**
+
+1. `samples/chapter3/` に移動する
+2. `kind create cluster --config kind-config.yaml --name k8s-demo-cluster` でクラスタを作成する
 
 ## 第4章で使うファイル
 
@@ -28,6 +34,7 @@
 | `restaurant-deployment-with-secret.yaml` | Secret 参照 Deployment |
 | `restaurant-service-clusterip.yaml` | ClusterIP Service |
 | `restaurant-service-nodeport.yaml` | NodePort Service |
+| `install-metallb.sh` | MetalLB 本体のインストールスクリプト |
 | `metallb-ip-pool.yaml` | MetalLB 用 IP プール（LoadBalancer 利用前に適用） |
 | `restaurant-service-loadbalancer.yaml` | LoadBalancer Service |
 | `restaurant-deployment-temp.yaml` | Volume 未使用 Deployment（データ消失のデモ用） |
@@ -38,7 +45,16 @@
 | `node-info-daemonset.yaml` | DaemonSet |
 | `nginx-deployment.yaml` | Deployment（DaemonSet 比較用） |
 | `inventory-check-cronjob.yaml` | CronJob |
+| `column-port-forward.md` | コラム: `kubectl port-forward` ではServiceの代わりにならないのか？ |
 
+**適用順の目安**
+
+1. 第3章の kind クラスタを用意したうえで、`samples/chapter4/` に移動する
+2. 原稿の流れに従い、Pod → ReplicaSet → Deployment の順で適用する
+3. ConfigMap / Secret は該当マニフェストを先に適用し、その後 Deployment を適用する
+4. Service は Deployment が稼働した後に適用する
+5. MetalLB 利用時は、MetalLB 本体のマニフェスト適用後に `metallb-ip-pool.yaml` を適用する
+6. PV/PVC を試す場合は、`recipe-pvc.yaml` → `restaurant-deployment-with-pvc.yaml` の順で適用する
 
 ## 第5章で使うファイル
 
@@ -46,3 +62,9 @@
 |----------|------|
 | `config-domain.yaml` | Knative のカスタムドメイン用 ConfigMap（`example.com`） |
 | `restaurant-knative-service.yaml` | KNative Service（FastAPI アプリ） |
+
+**最小手順**
+
+1. 第5章の原稿に従い、Knative Serving と Kourier をインストールする
+2. `kubectl apply -f config-domain.yaml` でドメインを設定する
+3. `kubectl apply -f restaurant-knative-service.yaml` で KNative Service をデプロイする
