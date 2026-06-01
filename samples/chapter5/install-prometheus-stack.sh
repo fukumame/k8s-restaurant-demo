@@ -1,6 +1,8 @@
 #!/bin/bash
 set -euo pipefail
 
+# 注意: デフォルトのパスワード "admin" はローカル検証用です。
+# 公開環境では必ず GRAFANA_ADMIN_PASSWORD 環境変数で別の値を指定してください。
 GRAFANA_ADMIN_PASSWORD="${GRAFANA_ADMIN_PASSWORD:-admin}"
 
 echo "Helmリポジトリを追加します..."

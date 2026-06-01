@@ -1,6 +1,13 @@
 # 書籍サンプルコード
 このレポジトリは、「イメージで理解！Kubernetesを始める人が最初に読む本(C&R研究所)」で使われるサンプルコードを管理するためのレポジトリです。
 
+> [!WARNING]
+> **本リポジトリは学習用サンプルです。本番環境では使用しないでください。**
+>
+> - `restaurant-secret.yaml` に含まれる `DB_PASSWORD` や `SECRET_RECIPE` などの値は、すべて解説用のダミーです。実在するクレデンシャルではありません。
+> - Kubernetes の Secret の `data` は **暗号化ではなく単なる Base64 エンコード**であり、誰でも復号できます。本番では実際のパスワードをそのまま記載せず、外部シークレット管理（External Secrets、Sealed Secrets、クラウドの KMS など）の利用を検討してください。
+> - `install-prometheus-stack.sh` の Grafana 管理者パスワードはローカル検証用のデフォルト値（`admin`）です。公開環境では必ず変更してください。
+
 ## ディレクトリ構成
 
 - **第3章/** … Kubernetes環境構築（kind の設定など）
