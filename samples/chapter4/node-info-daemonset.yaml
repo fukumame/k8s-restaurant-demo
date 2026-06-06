@@ -15,6 +15,13 @@ spec:
       containers:
         - name: node-info
           image: busybox:1.36
+          resources:
+            requests:        # スケジューリング時に確保される最低限のリソース
+              cpu: "10m"
+              memory: "16Mi"
+            limits:          # 使用量の上限。CPU は使用量が上限までに制限される（動作が遅くなるだけ）が、メモリは超えるとコンテナが強制終了される
+              cpu: "50m"
+              memory: "32Mi"
           command:
             - sh
             - -c

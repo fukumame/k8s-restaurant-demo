@@ -20,6 +20,13 @@ spec:
           ports:
             - containerPort: 80
               name: http
+          resources:
+            requests:        # スケジューリング時に確保される最低限のリソース
+              cpu: "50m"
+              memory: "64Mi"
+            limits:          # 使用量の上限。CPU は使用量が上限までに制限される（動作が遅くなるだけ）が、メモリは超えるとコンテナが強制終了される
+              cpu: "200m"
+              memory: "128Mi"
           volumeMounts:
             - name: www
               mountPath: /usr/share/nginx/html

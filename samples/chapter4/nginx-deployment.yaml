@@ -18,3 +18,10 @@ spec:
           image: nginx:1.25
           ports:
             - containerPort: 80
+          resources:
+            requests:        # スケジューリング時に確保される最低限のリソース
+              cpu: "50m"
+              memory: "64Mi"
+            limits:          # 使用量の上限。CPU は使用量が上限までに制限される（動作が遅くなるだけ）が、メモリは超えるとコンテナが強制終了される
+              cpu: "200m"
+              memory: "128Mi"
