@@ -32,6 +32,16 @@ resources:
     memory: "256Mi"
 ```
 
+## コマンド集（コピペ実行用）
+
+各章で実行するコマンドを、書籍の流れに沿ってコピペ実行できる形でまとめています。書籍を読みながら手で打つ代わりに、上から順にコピペして進められます。
+
+- [第3章 コマンド集](samples/chapter3/commands.md) … 環境構築（Docker Desktop / kubectl / kind / クラスタ作成）
+- [第4章 コマンド集](samples/chapter4/commands.md) … Pod / ReplicaSet / Deployment / ConfigMap / Secret / Service / Volume / StatefulSet / DaemonSet / CronJob
+- [第5章 コマンド集](samples/chapter5/commands.md) … KNative / hey負荷テスト / Grafana・Prometheus監視
+
+第1章・第2章は概念解説のため、実行コマンドはありません。
+
 ## ディレクトリ構成
 
 - **第3章/** … Kubernetes環境構築（kind の設定など）
@@ -42,6 +52,7 @@ resources:
 
 | ファイル | 説明 |
 |----------|------|
+| `commands.md` | 本章のコマンドをコピペ実行用にまとめたもの |
 | `kind-config.yaml` | 1 control-plane + 2 workers の kind クラスタ用設定 |
 | `install-homebrew.sh` | macOS 向け Homebrew インストールスクリプト |
 | `install-chocolatey.ps1` | Windows 向け Chocolatey インストールスクリプト |
@@ -55,6 +66,7 @@ resources:
 
 | ファイル | 説明 |
 |----------|------|
+| `commands.md` | 本章のコマンドをコピペ実行用にまとめたもの |
 | `app.py` | 書籍掲載の FastAPI 簡略版（参照用。実行は Docker イメージ `docker.io/fukumame/k8s-restaurant-demo:1.0.0` を推奨） |
 | `restaurant-pod.yaml` | Pod 単体 |
 | `restaurant-replicaset.yaml` | ReplicaSet |
@@ -91,6 +103,7 @@ resources:
 
 | ファイル | 説明 |
 |----------|------|
+| `commands.md` | 本章のコマンドをコピペ実行用にまとめたもの |
 | `config-domain.yaml` | Knative のカスタムドメイン用 ConfigMap（`example.com`） |
 | `restaurant-knative-service.yaml` | KNative Service（FastAPI アプリ） |
 
