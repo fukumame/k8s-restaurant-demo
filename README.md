@@ -7,9 +7,11 @@
 - Kubernetes の Secret の `data` は **暗号化ではなく単なる Base64 エンコード**であり、誰でも復号できます。本番では実際のパスワードをそのまま記載せず、外部シークレット管理（External Secrets、Sealed Secrets、クラウドの KMS など）の利用を検討してください。
 - `install-prometheus-stack.sh` の Grafana 管理者パスワードはローカル検証用のデフォルト値（`admin`）です。公開環境では必ず変更してください。
 
-## お詫びと補足（リソース要求・制限について）
+## お詫びと補足
 
-**書籍本文では、コンテナの「リソース要求・制限（`resources`）」の解説が抜けておりました。読者の皆さまに深くお詫び申し上げます。**
+### リソース要求・制限について
+
+書籍本文では、コンテナの「リソース要求・制限（`resources`）」の解説が抜けておりました。読者の皆さまに深くお詫び申し上げます。
 
 本書掲載のマニフェストには、各コンテナの CPU・メモリのリソース要求（`requests`）と制限（`limits`）の記述が含まれていませんでした。  
 実運用では、この設定が無いと次のような問題が起こり得ます。
@@ -30,6 +32,33 @@ resources:
   limits:          # 使用量の上限。CPU は使用量が上限までに制限される（動作が遅くなるだけ）が、メモリは超えるとコンテナが強制終了される
     cpu: "500m"
     memory: "256Mi"
+```
+
+### `ImagePullBackOff` でイメージが取得できなかった件について
+
+書籍サンプルで使用する Docker イメージの一部が、一時期 amd64（x86_64）環境で取得できず、`ImagePullBackOff` となる不具合がありました。読者の皆さまにご迷惑をおかけし、深くお詫び申し上げます。なお、本不具合はすでに解消済みです。
+
+第4章などで Deployment や Pod を適用した際、次のように Pod が起動せず `ImagePullBackOff` になる状態でした。
+
+```
+NAME                                      READY   STATUS             RESTARTS   AGE
+restaurant-demo-deploy-xxxxxxxxxx-xxxxx   0/1     ImagePullBackOff   0          11m
+```
+
+原因は、公開していた `docker.io/fukumame/k8s-restaurant-demo` イメージを、著者の作業環境（Apple Silicon Mac）向けの arm64 版のみでビルドして公開しており、amd64（x86_64）版を含めていなかったことです。Docker のイメージは CPU アーキテクチャ（amd64 / arm64 など）ごとに中身が分かれているため、amd64 環境では対応するイメージが見つからず、取得に失敗していました。マニフェストのイメージ名・タグは正しく、読者の皆さまの操作や設定に誤りがあったわけではありません。
+
+対応済みの内容として、書籍で使用するすべてのイメージ（`1.0.0` / `2.0.0` / `secret_recipe` / `volume`）を、amd64・arm64 の両対応（マルチアーキテクチャ）で公開し直しました。イメージ名・タグは従来と同じため、マニフェスト（YAML）の変更は不要です。
+
+すでに `ImagePullBackOff` となった Pod が残っている場合は、再適用いただくと新しいイメージを取得して起動します。
+
+```bash
+kubectl apply -f restaurant-deployment.yaml
+```
+
+状態が変わらない場合は、失敗している Pod を削除してください（再作成時にイメージを取得し直します）。
+
+```bash
+kubectl delete pod -l app=restaurant-demo
 ```
 
 ## コマンド集（コピペ実行用）
