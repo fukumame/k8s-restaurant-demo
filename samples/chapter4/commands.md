@@ -397,7 +397,7 @@ Podが起動するまで待機します。
 kubectl wait --namespace metallb-system \
   --for=condition=ready pod \
   --selector=app=metallb \
-  --timeout=90s
+  --timeout=300s
 ```
 
 > 上記2コマンドは、`samples/chapter4/install-metallb.sh` で一括実行できます。
@@ -408,6 +408,33 @@ kubectl wait --namespace metallb-system \
 
 ```bash
 kubectl get pods -n metallb-system
+```
+
+#### うまくいかないとき （PodがReadyにならないとき）
+
+`kubectl wait` がタイムアウトしても、多くの場合は失敗ではなくイメージ取得（quay.io）に時間がかかっているだけです。まず実際の状態を確認します。
+
+```bash
+kubectl get pods -n metallb-system
+kubectl describe pod -n metallb-system -l app=metallb   # 末尾の Events に原因が出ます
+```
+
+- `STATUS` が `Running`（`READY 1/1`）になれば問題ありません。少し待って再確認してください。
+- `ImagePullBackOff` / `ErrImagePull`、または `ContainerCreating` が続く場合は、quay.io への到達性（回線・プロキシ・DNS）が原因のことが多いです。
+
+kind の場合は、ホスト側でイメージを取得してクラスタへ読み込むと確実です（`<クラスタ名>` は `kind get clusters` で確認。本書では `k8s-demo-cluster`）。
+
+```bash
+docker pull quay.io/metallb/controller:v0.15.3
+docker pull quay.io/metallb/speaker:v0.15.3
+kind load docker-image quay.io/metallb/controller:v0.15.3 --name <クラスタ名>
+kind load docker-image quay.io/metallb/speaker:v0.15.3 --name <クラスタ名>
+```
+
+読み込み後、Podを再作成すると取得済みイメージで起動します。
+
+```bash
+kubectl -n metallb-system rollout restart deploy/controller ds/speaker
 ```
 
 #### IPアドレスプールの設定
