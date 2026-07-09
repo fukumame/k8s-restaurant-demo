@@ -290,6 +290,13 @@ sum(rate(container_cpu_usage_seconds_total{namespace="default", pod=~"restaurant
 docker run --rm --network kind williamyeh/hey:latest -z 2m -c 40 -host "restaurant-demo.default.example.com" http://172.19.255.200/menu
 ```
 
+#### 補足（それでもグラフに変化が出ない場合）
+レスポンスが数ms程度と非常に高速なため、環境によっては並行数40でもオートスケールの閾値（`target: 30`）を安定して超えず、Pod数が増えない（グラフに変化が出ない）ことがあります。その場合は並行数を200などに増やして再実行してください。
+
+```bash
+docker run --rm --network kind williamyeh/hey:latest -z 2m -c 200 -host "restaurant-demo.default.example.com" http://172.19.255.200/menu
+```
+
 ---
 
 ## 後片付け
