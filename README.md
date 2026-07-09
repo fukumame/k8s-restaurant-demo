@@ -61,6 +61,17 @@ kubectl apply -f restaurant-deployment.yaml
 kubectl delete pod -l app=restaurant-demo
 ```
 
+### 負荷テストでオートスケールしない場合について
+
+第5章の負荷テストでは、`hey` の並行数40（`-c 40`）でオートスケール（負荷に応じて Pod が増える様子）を確認する手順を掲載しています。しかし、本アプリのレスポンスが数ミリ秒と非常に高速なため、環境によっては並行数40では 1Pod あたりの同時リクエスト数がオートスケールの閾値（`restaurant-knative-service.yaml` の `target: "30"`）に安定して到達せず、Pod が増えないことがあります。  
+その場合は、並行数を 200（`-c 200`）に増やして再実行すると、Pod が増えていく様子を確認できます。 もしそれでもオートスケールしない場合は、この`-c`オプションの数字を変えることで並列数を更に増やす事も可能です。
+
+```bash
+docker run --rm --network kind williamyeh/hey:latest -z 3m -c 200 -host "restaurant-demo.default.example.com" http://172.19.255.200/menu
+```
+
+本リポジトリの [第5章 コマンド集](samples/chapter5/commands.md) には、この補足（並行数200での再実行）を追記済みです。
+
 ## コマンド集（コピペ実行用）
 
 各章で実行するコマンドを、書籍の流れに沿ってコピペ実行できる形でまとめています。書籍を読みながら手で打つ代わりに、上から順にコピペして進められます。
