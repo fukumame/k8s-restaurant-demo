@@ -165,6 +165,13 @@ watchを起動した状態のまま、元のターミナルから高い負荷を
 docker run --rm --network kind williamyeh/hey:latest -z 3m -c 40 -host "restaurant-demo.default.example.com" http://172.19.255.200/menu
 ```
 
+#### 補足（それでもスケールしない場合）
+レスポンスが数ms程度と非常に高速なため、環境によっては並行数40でもオートスケールの閾値（`target: 30`）を安定して超えず、Podが増えないことがあります。その場合は並行数を200などに増やして再実行してください。
+
+```bash
+docker run --rm --network kind williamyeh/hey:latest -z 3m -c 200 -host "restaurant-demo.default.example.com" http://172.19.255.200/menu
+```
+
 負荷テスト終了後、Pod数が`minScale`（1）まで減っていく様子を確認します（0にはなりません）。
 
 ```bash
