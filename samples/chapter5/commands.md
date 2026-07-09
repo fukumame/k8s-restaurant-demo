@@ -133,6 +133,8 @@ curl -H "Host: restaurant-demo.default.example.com" http://172.19.255.200/menu
 
 ### 簡単なテスト実行（並行数5・スケールしない）
 
+並行数5はKNative Serviceのスケール閾値（`target: 30`）を下回るため、Podは1個のまま増えません。まずは疎通確認としてこれを実行します。オートスケールの様子は次の手順で確認します。
+
 ```bash
 docker run --rm --network kind williamyeh/hey:latest -n 100 -c 5 -host "restaurant-demo.default.example.com" http://172.19.255.200/menu
 ```
@@ -145,25 +147,25 @@ docker run --rm --network kind williamyeh/hey:latest -n 100 -c 5 -host "restaura
 kubectl get pods -l serving.knative.dev/service=restaurant-demo
 ```
 
-高い負荷をかけます（並行数40・3分間）。
-
-```bash
-docker run --rm --network kind williamyeh/hey:latest -z 3m -c 40 -host "restaurant-demo.default.example.com" http://172.19.255.200/menu
-```
-
-別のターミナルでPod数の変化をリアルタイムに監視します。
+`hey`の実行中はターミナルがブロックされるため、先に別のターミナルを開き、Pod数の変化をリアルタイムに監視できる状態にしておきます。
 
 ```bash
 watch -n 1 'kubectl get pods -l serving.knative.dev/service=restaurant-demo'
 ```
 
 #### 補足
-`watch` はmacOSに標準搭載されていません。未導入の場合は `brew install watch` でインストールできます。`watch` が使えない場合は、以下を繰り返し実行してください。
+`watch` はmacOSに標準搭載されていません。未導入の場合は `brew install watch` でインストールできます。`watch` が使えない場合は、元のターミナルで下記の負荷テストを実行しつつ、別のターミナルで以下を繰り返し実行してください。
 ```bash
 kubectl get pods -l serving.knative.dev/service=restaurant-demo
 ```
 
-負荷テスト終了後、Pod数が減っていく様子を確認します。
+watchを起動した状態のまま、元のターミナルから高い負荷をかけます（並行数40・3分間）。watch側でPod数が増えていく様子を確認してください。
+
+```bash
+docker run --rm --network kind williamyeh/hey:latest -z 3m -c 40 -host "restaurant-demo.default.example.com" http://172.19.255.200/menu
+```
+
+負荷テスト終了後、Pod数が`minScale`（1）まで減っていく様子を確認します（0にはなりません）。
 
 ```bash
 kubectl get pods -l serving.knative.dev/service=restaurant-demo
