@@ -13,14 +13,12 @@ echo "monitoring Namespace を作成します..."
 kubectl create namespace monitoring --dry-run=client -o yaml | kubectl apply -f -
 
 echo "kube-prometheus-stack をインストールします..."
-helm install prometheus-stack prometheus-community/kube-prometheus-stack \
+# upgrade --install: 未インストールなら新規作成、インストール済みなら更新（再実行してもエラーにならない）
+# --wait: 新しいPod・リソースがreadyになるまでhelmが待機する（ローリング更新中に古いPodを掴むエラーを回避）
+helm upgrade --install prometheus-stack prometheus-community/kube-prometheus-stack \
   --namespace monitoring \
-  --set grafana.adminPassword="${GRAFANA_ADMIN_PASSWORD}"
-
-echo "monitoring NamespaceのPodが起動するまで待機します..."
-kubectl wait --namespace monitoring \
-  --for=condition=ready pod --all \
-  --timeout=300s
+  --set grafana.adminPassword="${GRAFANA_ADMIN_PASSWORD}" \
+  --wait --timeout 5m
 
 echo "Pod の状態を確認します..."
 kubectl get pods -n monitoring
