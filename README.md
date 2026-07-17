@@ -61,6 +61,54 @@ kubectl apply -f restaurant-deployment.yaml
 kubectl delete pod -l app=restaurant-demo
 ```
 
+### `Permission denied` でレシピファイルを作成できなかった件について
+
+第4章のデータ永続化のデモ（書籍137ページ）において、Pod 内にレシピファイルを作成する手順が `Permission denied` となり失敗する不具合がありました。  
+読者の皆さまにご迷惑をおかけし、深くお詫び申し上げます。なお、本不具合はすでに解消済みです。
+
+書籍の手順どおりに次のコマンドを実行しても、ディレクトリが作成できない状態でした。
+
+```
+$ kubectl exec -it deploy/restaurant-demo-temp -- sh -c "mkdir -p /app/recipes && echo '一時保存のシーフードピザのレシピ' > /app/recipes/recipe.txt"
+mkdir: cannot create directory '/app/recipes': Permission denied
+```
+
+こちらは、Dockerイメージの問題であり、読者の皆さまの操作や設定に誤りがあったわけではありません。  
+既に不具合は修正し、対応済みのイメージを既に公開しています。
+
+#### すでに古いイメージを取得済みの場合
+
+一度取得したイメージはクラスタ内にキャッシュとして残るため、再適用しただけでは新しいイメージに入れ替わりません。  
+次の方法で、イメージを取得し直してください。
+
+```bash
+# デモ用の Deployment を削除する
+kubectl delete deploy restaurant-demo-temp
+
+# 各ノードから古いイメージのキャッシュを削除する
+docker exec k8s-demo-cluster-control-plane crictl rmi docker.io/fukumame/k8s-restaurant-demo:volume
+docker exec k8s-demo-cluster-worker crictl rmi docker.io/fukumame/k8s-restaurant-demo:volume
+docker exec k8s-demo-cluster-worker2 crictl rmi docker.io/fukumame/k8s-restaurant-demo:volume
+
+# あらためて適用する
+kubectl apply -f restaurant-deployment-temp.yaml
+```
+
+イメージのキャッシュを持っていないノードでは `no such image` と表示されますが、問題ありません。
+
+
+#### 新しいイメージで動作しているかの確認
+
+次のコマンドを実行し、
+
+```bash
+kubectl exec deploy/restaurant-demo-temp -- ls -ld /app
+```
+次の結果が得られれば、正常に動作しています。
+```
+drwxr-xr-x 1 appuser appuser 4096 Jul 17 04:01 /app
+```
+
 ### 負荷テストでオートスケールしない場合について
 
 第5章の負荷テストでは、`hey` の並行数40（`-c 40`）でオートスケール（負荷に応じて Pod が増える様子）を確認する手順を掲載しています。しかし、本アプリのレスポンスが数ミリ秒と非常に高速なため、環境によっては並行数40では 1Pod あたりの同時リクエスト数がオートスケールの閾値（`restaurant-knative-service.yaml` の `target: "30"`）に安定して到達せず、Pod が増えないことがあります。  
