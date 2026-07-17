@@ -9,7 +9,7 @@ spec:
       annotations:
         autoscaling.knative.dev/minScale: "1"
         autoscaling.knative.dev/maxScale: "10"
-        autoscaling.knative.dev/target: "30"
+        autoscaling.knative.dev/target: "10"
     spec:
       containers:
         - image: docker.io/fukumame/k8s-restaurant-demo:1.0.0
